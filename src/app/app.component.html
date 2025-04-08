@@ -16,24 +16,13 @@
         </ion-content>
       </div>
     </ion-tab>
-    <ion-tab tab="radio">
-      <div id="radio-page">
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Weather</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content>
-          <ion-header collapse="condense">
-            <ion-toolbar>
-              <ion-title size="large">Weather</ion-title>
-            </ion-toolbar>
-          </ion-header>
-        </ion-content>
+    <ion-tab tab="weather">
+      <div id="weather-page">
+        <weather-page></weather-page>
       </div>
     </ion-tab>
-    <ion-tab tab="library">
-      <div id="library-page">
+    <ion-tab tab="water">
+      <div id="water-page">
         <ion-header>
           <ion-toolbar>
             <ion-title>Water Info</ion-title>
@@ -48,8 +37,8 @@
         </ion-content>
       </div>
     </ion-tab>
-    <ion-tab tab="search">
-      <div id="search-page">
+    <ion-tab tab="more">
+      <div id="more-page">
         <ion-header>
           <ion-toolbar>
             <ion-title>More</ion-title>
@@ -70,15 +59,15 @@
         <fa-icon [icon]="faHome" size="2x" />
         Home
       </ion-tab-button>
-      <ion-tab-button tab="radio">
+      <ion-tab-button tab="weather">
         <fa-icon [icon]="faCloud" size="2x" />
         Weather
       </ion-tab-button>
-      <ion-tab-button tab="library">
+      <ion-tab-button tab="water">
         <fa-icon [icon]="faWater" size="2x" />
         Water
       </ion-tab-button>
-      <ion-tab-button tab="search">
+      <ion-tab-button tab="more">
         <fa-icon [icon]="faLayerGroup" size="2x" />
         More
       </ion-tab-button>
