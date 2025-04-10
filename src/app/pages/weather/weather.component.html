@@ -1,22 +1,149 @@
-<ion-header>
-    <ion-toolbar>
-        <ion-title>Weather</ion-title>
-    </ion-toolbar>
-</ion-header>
-<ion-content fullscreen>
-    <ion-header collapse="condense">
+<div class="ion-page">
+    <ion-header>
         <ion-toolbar>
-            <ion-title size="large">Weather</ion-title>
+            <ion-title>Weather</ion-title>
         </ion-toolbar>
     </ion-header>
-    <ion-card>
-        <div>
-            <h2>Temp</h2>
-            <p>77°</p>
-            <h2>Temp</h2>
-            <p>77°</p>
-            <h2>Temp</h2>
-            <p>77°</p>
+
+    <ion-content fullscreen>
+
+        <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" pullFactor={0.5} pullMin={15} pullMax={30}>
+            <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+
+        <ion-header collapse="condense">
+            <ion-toolbar>
+                <ion-title size="large">Weather</ion-title>
+                <ion-buttons slot="end" class="mt-2">
+                    <ion-button [id]="'location-button'">
+                        <div class="flex items-center gap-1">
+                            <span>{{location?.name}}</span>
+                            <ion-icon name="map" size="small"></ion-icon>
+                        </div>
+                    </ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+
+        <ion-popover #locationPopover trigger="location-button" [isOpen]="false">
+            <ng-template>
+                <ion-content>
+                    <ion-list>
+                        @for (location of locations; track location.name) {
+                        <ion-item button (click)="selectLocation(location); locationPopover.dismiss()">
+                            <ion-label>{{ location.name }}</ion-label>
+                        </ion-item>
+                        }
+                    </ion-list>
+                </ion-content>
+            </ng-template>
+        </ion-popover>
+
+        <div class="px-3">
+            <div class="flex flex-wrap gap-2">
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Temperature</h2>
+                    <p class="text-xl font-semibold text-white">{{ weatherService.data.value()?.currentTemp }}°</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">High</h2>
+                    <p class="text-xl font-semibold text-red-400">{{ weatherService.data.value()?.tempHigh }}°</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Low</h2>
+                    <p class="text-xl font-semibold text-blue-400">{{ weatherService.data.value()?.tempLow }}°</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">UV Index</h2>
+                    <p class="text-xl font-semibold text-white">{{ weatherService.data.value()?.uvIndex }}</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Sunrise</h2>
+                    <p class="text-xl font-semibold text-white">{{ weatherService.data.value()?.sunrise }}</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Sunset</h2>
+                    <p class="text-xl font-semibold text-white">{{ weatherService.data.value()?.sunset }}</p>
+                </ion-card>
+            </div>
+
+            <div class="flex items-center justify-between mt-4 mb-3">
+                <h1 class="text-xl font-bold">Hourly</h1>
+                <p class="text-sm text-zinc-400">Next 24 Hours</p>
+            </div>
+
+
+            <div class="flex overflow-x-scroll whitespace-nowrap gap-2">
+                @for (forecast of weatherService.data.value()?.hourlyForecast; track forecast.time) {
+                <ion-card class="px-4 py-2 m-0 flex justify-center items-center flex-col min-w-fit gap-1">
+                    <h2 class="text-xs">{{ forecast.formattedTime }}</h2>
+                    <ion-icon [name]="forecast.weatherIcon.icon" size="small"
+                        class="{{ forecast.weatherIcon.color }}"></ion-icon>
+                    <p class="text-md text-white font-bold">{{ forecast.temperature }}°</p>
+                </ion-card>
+                }
+            </div>
+
+
+
+            <div class="flex items-center justify-between mt-4 mb-3">
+                <h1 class="text-xl font-bold">Daily</h1>
+                <p class="text-sm text-zinc-400">Next 7 Days</p>
+            </div>
+
+
+            <div class="flex flex-col gap-2 mb-4">
+                @for (forecast of weatherService.data.value()?.dailyForecast; track forecast.date) {
+                <div class="flex gap-2">
+                    <ion-card class="px-3 py-2 m-0 text-center">
+                        <div class="px-2">
+                            <span class="mb-2 block">{{ forecast.formattedDate }}</span>
+                            <ion-icon [name]="forecast.weatherIcon.icon" size="large"
+                        class="{{ forecast.weatherIcon.color }}"></ion-icon>
+                        </div>
+                    </ion-card>
+
+                    <ion-card class="p-2 m-0 flex-grow flex gap-1">
+
+                        <div class="flex flex-col flex-grow gap-1">
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <ion-icon name="flame" size="small"></ion-icon>
+                                <span class="text-white">{{ forecast.maxTemp }}°</span>
+                            </div>
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <ion-icon name="snow" size="small"></ion-icon>
+                                <span class="text-white">{{ forecast.minTemp }}°</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col flex-grow gap-1">
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <span class="font-bold">UV <span class="text-white font-normal">{{ forecast.maxUvIndex }}</span></span>
+                            </div>
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <ion-icon name="rainy" size="small"></ion-icon>
+                                <span class="text-white">{{ forecast.precipitationSum }}"</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col flex-grow gap-1">
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <ion-icon name="chevron-up" size="small"></ion-icon>
+                                <span class="text-white">{{ forecast.sunrise }}</span>
+                            </div>
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <ion-icon name="chevron-down" size="small"></ion-icon>
+                                <span class="text-white">{{ forecast.sunset }}</span>
+                            </div>
+                        </div>
+
+                    </ion-card>
+                </div>
+                }
+            </div>
+
+
+
         </div>
-    </ion-card>
-</ion-content>
+    </ion-content>
+</div>
