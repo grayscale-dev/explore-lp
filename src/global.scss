@@ -42,14 +42,14 @@
 @import '@ionic/angular/css/palettes/dark.system.css';
 
 .font-rubik {
-    font-family: "Rubik Mono One", monospace;
+  font-family: "Rubik Mono One", monospace;
 }
 
 
 .ios ion-content::part(scroll)::-webkit-scrollbar {
-    display: none;
-  }
+  display: none;
+}
 
-  .ios div::-webkit-scrollbar {
-    display: none;
-  }
+.ios div::-webkit-scrollbar {
+  display: none;
+}
