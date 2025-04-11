@@ -71,30 +71,20 @@ export class WeatherTransformer {
     }
 
     private static transformHourlyData(apiResponse: WeatherApiResponse): HourlyForecast[] {
-        const now = new Date();
-        const millisecondsPerHour = 1000 * 60 * 60;
-
-        return apiResponse.hourly.time.map((time, index) => {
-            const forecastTime = new Date(time + 'Z');
-
-            const formattedTime = now.getHours() === forecastTime.getHours()
-                ? 'Now'
-                : forecastTime.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    hour12: true
-                });
-
-            return {
-                time: forecastTime,
-                formattedTime,
-                temperature: Math.round(apiResponse.hourly.temperature_2m[index]),
-                weatherIcon: getWeatherIcon(apiResponse.hourly.weather_code[index])
-            };
+        const data = apiResponse.hourly.time.map((time, index) => ({
+            time: new Date(time + 'Z'),
+            formattedTime: new Date(time + 'Z').toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+            temperature: Math.round(apiResponse.hourly.temperature_2m[index]),
+            weatherIcon: getWeatherIcon(apiResponse.hourly.weather_code[index])
+        }))
+        .filter(forecast => {
+            const hourDiff = (forecast.time.getTime() - new Date().getTime()) / 3600000;
+            return hourDiff >= -1 && hourDiff < 23;
         })
-            .filter(forecast => {
-                const hourDiff = (forecast.time.getTime() - now.getTime()) / millisecondsPerHour;
-                return hourDiff >= -1 && hourDiff < 23;
-            });
+
+        data[0].formattedTime = 'Now';
+
+        return data;
     }
 
     private static transformDailyData(apiResponse: WeatherApiResponse): DailyForecast[] {

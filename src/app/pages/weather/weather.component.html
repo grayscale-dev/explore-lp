@@ -7,7 +7,7 @@
 
     <ion-content fullscreen>
 
-        <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" pullFactor={0.5} pullMin={15} pullMax={30}>
+        <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" pullFactor={1.0} pullMin={5} pullMax={10}>
             <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
 
