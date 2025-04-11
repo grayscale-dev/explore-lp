@@ -44,3 +44,12 @@
 .font-rubik {
     font-family: "Rubik Mono One", monospace;
 }
+
+
+.ios ion-content::part(scroll)::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ios div::-webkit-scrollbar {
+    display: none;
+  }
