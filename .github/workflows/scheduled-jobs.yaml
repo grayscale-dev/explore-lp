@@ -1,9 +1,9 @@
 name: Run Scheduled Jobs
 
 on:
-  schedule:
-    - cron: '0 12 * * *' # Daily at 12 UTC
   workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
 
 jobs:
   update-water-data:
