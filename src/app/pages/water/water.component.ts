@@ -1,13 +1,13 @@
 import { Component, inject, ViewChild } from "@angular/core";
 import { WaterDataService } from "src/app/core/services/water-data.service";
-import { IonTitle, IonButtons, IonButton, IonIcon, IonHeader, IonPopover, IonCard, IonContent, IonToolbar, IonRefresher, IonRefresherContent, IonModal } from "@ionic/angular/standalone";
+import { IonTitle, IonButtons, IonButton, IonIcon, IonHeader, IonPopover, IonCard, IonContent, IonToolbar, IonRefresher, IonRefresherContent, IonModal, IonAccordion, IonItem, IonLabel, IonAccordionGroup } from "@ionic/angular/standalone";
 import { CommonModule } from "@angular/common";
 import { addIcons } from "ionicons";
-import { helpCircle, warning } from "ionicons/icons";
+import { arrowDown, arrowUp, chevronCollapse, chevronDown, chevronUp, helpCircle, warning } from "ionicons/icons";
 
 @Component({
     selector: 'water-page',
-    imports: [IonModal, IonRefresherContent, IonRefresher, IonToolbar, IonContent, IonCard, IonPopover, IonHeader, IonIcon, IonButton, IonButtons, IonTitle, CommonModule],
+    imports: [IonAccordionGroup, IonLabel, IonItem, IonAccordion, IonModal, IonRefresherContent, IonRefresher, IonToolbar, IonContent, IonCard, IonPopover, IonHeader, IonIcon, IonButton, IonButtons, IonTitle, CommonModule],
     templateUrl: './water.component.html'
 })
 
@@ -61,7 +61,7 @@ export class WaterPageComponent {
     }
 
     constructor() {
-        addIcons({helpCircle, warning})
+        addIcons({helpCircle, warning, chevronDown, chevronUp, chevronCollapse})
     }
 
     handleRefresh(event: any) {

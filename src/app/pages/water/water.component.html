@@ -28,13 +28,14 @@
                 </ion-card>
                 <ion-card class="px-3 py-2 m-0 flex-grow">
                     <h2 class="mb-2">Elevation</h2>
-                    <p class="text-xl font-semibold text-white">{{ waterDataService.data.value()?.[0]?.elevation }}ft
+                    <p class="text-xl font-semibold text-white">{{
+                        waterDataService.data.value()?.[0]?.elevation?.toLocaleString() }} ft
                     </p>
                 </ion-card>
                 <ion-card class="px-3 py-2 m-0 flex-grow" id="open-water-temp-modal">
-                    <h2 class="mb-2">Estimated Temp</h2>
+                    <h2 class="mb-2">Temperature</h2>
                     <ion-icon name="help-circle" size="small" class="fixed bottom-3 right-3"></ion-icon>
-                    <p class="text-xl font-semibold text-white">{{ currentWaterTemperature.avg }}</p>
+                    <p class="text-xl font-semibold text-white">{{ currentWaterTemperature.avg }} <span class="text-xs" [ngClass]="{'text-blue-500': currentWaterTemperature.category === 'cold', 'text-amber-500': currentWaterTemperature.category === 'warm', 'text-red-500': currentWaterTemperature.category === 'hot'}">{{ currentWaterTemperature.category }}</span></p>
                 </ion-card>
             </div>
 
@@ -50,20 +51,24 @@
                     </ion-header>
                     <ion-content>
                         <div class="p-3">
-                            <div class="p-3 bg-yellow-800 rounded-xl text-sm">
+                            <div class="p-3 bg-red-800 rounded-xl text-sm">
+                                <div class="flex gap-1 items-center font-bold mb-1">
+                                    <ion-icon icon="warning"></ion-icon>
+                                    <span>Notice</span>
+                                </div>
                                 <p>As live water temperature data is not currently available, we provide average
                                     temperatures based on historical data from the past 10 years.</p>
                             </div>
                             <div class="flex flex-col gap-2 mt-4">
                                 @for (item of monthlyTemperatures; track item.month) {
                                 <div class="flex">
-                                    <p
-                                        class="text-sm font-semibold text-center bg-zinc-700 px-2 py-2 rounded-lg mr-1 w-32">
-                                        {{item.month}}</p>
-                                    <div class="bg-zinc-800 rounded-lg flex-grow">
-                                        <div class="flex justify-around p-1 items-center w-full">
-                                            <p
-                                                [ngClass]="{'text-blue-400': item.category === 'cold', 'text-yellow-400': item.category === 'warm', 'text-red-400': item.category === 'hot'}">
+                                    <div class="bg-zinc-800 rounded-lg flex items-center justify-between w-full px-3 py-1">
+                                        <div class="flex items-center gap-2">
+                                            <div class="rounded-full w-2 h-2" [ngClass]="{'bg-blue-500': item.category === 'cold', 'bg-amber-500': item.category === 'warm', 'bg-red-500': item.category === 'hot'}"></div>
+                                            <p class="text-sm font-bold">{{item.month}}</p>
+                                        </div>
+                                        <div class="flex gap-5 p-1 items-center text-sm">
+                                            <p>
                                                 <span
                                                     class="text-xs font-semibold mr-1 opacity-75">AVG</span>{{item.avg}}
                                             </p>
@@ -88,54 +93,67 @@
                 <p class="text-sm text-zinc-400">Past 14 Days</p>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="flex gap-2 overflow-x-scroll">
                 @for (day of waterDataService.data.value(); track day.date) {
                 <div class="flex gap-2">
-                    <ion-card class="px-3 m-0 flex flex-col text-center w-fit font-bold justify-center">
-                        <div class="px-2">
-                            <span class="mb-2 block">{{ day.formattedDate }}</span>
-                            <span
-                                [ngClass]="{'text-green-400': (day.change || 0) > 0, 'text-red-400': (day.change || 0) < 0}">{{day.change}}</span>
-                        </div>
+                    <ion-card class="p-3 m-0 flex flex-col text-center w-fit justify-center items-center"
+                        id="click-trigger-{{day.date}}">
+                        <span class="mb-2 block text-xs">{{ day.formattedDate }}</span>
+                        @if ((day.change || 0) > 0) {
+                            <ion-icon icon="chevron-up" class="text-green-400" size="small"></ion-icon>
+                        } @else if ((day.change || 0) < 0) {
+                            <ion-icon icon="chevron-down" class="text-red-400" size="small"></ion-icon>
+                        } @else {
+                            <ion-icon icon="chevron-collapse" size="small"></ion-icon>
+                        }
+                        <span
+                            [ngClass]="{'text-green-400': (day.change || 0) > 0, 'text-red-400': (day.change || 0) < 0}"
+                            class="font-semibold mt-1">{{day.change}}</span>
                     </ion-card>
 
-                    <ion-card class="p-2 m-0 flex-grow flex gap-1">
+                    <ion-popover trigger="click-trigger-{{day.date}}" triggerAction="click">
+                        <ng-template>
+                            <div class="py-2 px-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="block text-xs font-semibold">Elevation</span>
+                                    <span class="text-white text-sm">{{ day.elevation.toLocaleString() }} <span
+                                            class="text-zinc-500">ft</span></span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="block text-xs font-semibold">Content</span>
+                                    <span class="text-white text-sm">{{ day.content.toLocaleString() }} <span
+                                            class="text-zinc-500">af</span></span>
+                                </div>
 
-                        <div class="flex flex-col flex-grow gap-1">
-                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
-                                <span class="block text-xs font-semibold">ELEV</span>
-                                <span class="text-white">{{ day.elevation }}</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="block text-xs font-semibold">Inflow</span>
+                                    <span class="text-white text-sm">{{ day.inflow.toLocaleString() }} <span
+                                            class="text-zinc-500">cfs</span></span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="block text-xs font-semibold">Outflow</span>
+                                    <span class="text-white text-sm">{{ day.outflow.toLocaleString() }} <span
+                                            class="text-zinc-500">cfs</span></span>
+                                </div>
                             </div>
-                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
-                                <span class="block text-xs font-semibold">CONT</span>
-                                <span class="text-white">{{ day.content }}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col flex-grow gap-1">
-                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
-                                <span class="block text-xs font-semibold">IN</span>
-                                <span class="text-white">{{ day.inflow }}</span>
-                            </div>
-                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
-                                <span class="block text-xs font-semibold">OUT</span>
-                                <span class="text-white">{{ day.outflow }}</span>
-                            </div>
-                        </div>
-
-                    </ion-card>
+                        </ng-template>
+                    </ion-popover>
                 </div>
                 }
             </div>
+            <p class="text-xs text-zinc-500 mt-1">Select an item to show more details</p>
 
 
             <h1 class="text-xl font-bold mt-4 mb-3">Launch Sites</h1>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col rounded-lg overflow-clip">
                 @for (site of launchSites; track site.site) {
-                    <ion-card class="px-3 py-2 m-0 flex text-center w-full font-bold justify-between">
-                        <p class="">{{ site.site }}</p>
-                        <p [ngClass]="{'text-green-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) > 0, 'text-red-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) < 0}">{{ ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation).toFixed(1) }}</p>
-                    </ion-card>
+                <div class="px-3 py-2 m-0 flex text-center w-full justify-between items-center rounded-none bg-zinc-900">
+                    <p class="text-xs text-zinc-400">{{ site.site }}</p>
+                    <p class="text-sm font-bold"
+                        [ngClass]="{'text-green-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) > 0, 'text-red-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) < 0}">
+                        {{ ((waterDataService.data.value()?.[0]?.elevation || 0 ) -
+                        site.minimumSafeElevation).toFixed(1) }}</p>
+                </div>
                 }
             </div>
 
