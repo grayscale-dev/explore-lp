@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Set up date
         id: date
-        run: echo "date=$(date -u '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+        run: echo "date=$(date -u -d '16 days ago' +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
       - name: Call USBR API
         run: |
@@ -30,6 +30,6 @@ jobs:
             az storage blob upload \
               --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
               --container-name daily-cache \
-              --name usbr-${{ steps.date.outputs.date }}.json \
+              --name usbr-water-data.json \
               --file response.json \
               --overwrite
