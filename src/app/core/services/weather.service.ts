@@ -19,10 +19,7 @@ export class WeatherService {
             }
 
             const data = await response.json();
-            console.log(data);
-            const modeledData = WeatherTransformer.transform(data);
-            console.log(modeledData);
-            return modeledData;
+            return WeatherTransformer.transform(data);
         }
     });
 }

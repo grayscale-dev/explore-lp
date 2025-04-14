@@ -1,0 +1,35 @@
+name: Run Scheduled Jobs
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # Daily at 12 UTC
+  workflow_dispatch:
+
+jobs:
+  update-water-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up date
+        id: date
+        run: echo "date=$(date -u '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Call USBR API
+        run: |
+          URL="https://data.usbr.gov/rise/api/result?page=1&itemsPerPage=1000&locationId=393&parameterId=2,18,12,3&dateTime%5Bafter%5D=${{ steps.date.outputs.date }}"
+          curl "$URL" -o response.json
+
+      - name: Upload to Azure Blob Storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az login --service-principal \
+              --username ${{ secrets.AZURE_CLIENT_ID }} \
+              --password ${{ secrets.AZURE_CLIENT_SECRET }} \
+              --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+            az storage blob upload \
+              --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+              --container-name daily-cache \
+              --name usbr-${{ steps.date.outputs.date }}.json \
+              --file response.json \
+              --overwrite
