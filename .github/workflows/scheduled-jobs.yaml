@@ -1,9 +1,12 @@
 name: Run Scheduled Jobs
 
 on:
-  schedule:
-    - cron: '0 12 * * *' # Daily at 12 UTC
   workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
+  push:
+    branches:
+      - feature/create-water-data-page
 
 jobs:
   update-water-data:
@@ -26,10 +29,11 @@ jobs:
               --username ${{ secrets.AZURE_CLIENT_ID }} \
               --password ${{ secrets.AZURE_CLIENT_SECRET }} \
               --tenant ${{ secrets.AZURE_TENANT_ID }}
-
+      
             az storage blob upload \
               --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
               --container-name daily-cache \
               --name usbr-water-data.json \
               --file response.json \
-              --overwrite
+              --overwrite \
+              --auth-mode login
