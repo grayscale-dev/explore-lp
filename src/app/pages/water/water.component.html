@@ -1,0 +1,144 @@
+<div class="ion-page">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Water Data</ion-title>
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-content fullscreen>
+
+        <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)" pullFactor={1.0} pullMin={5} pullMax={10}>
+            <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+
+        <ion-header collapse="condense">
+            <ion-toolbar>
+                <ion-title size="large">Water Data</ion-title>
+            </ion-toolbar>
+        </ion-header>
+
+        <div class="px-3 mb-4">
+
+            <div class="flex flex-wrap gap-2">
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Change</h2>
+                    <p class="text-xl font-semibold"
+                        [ngClass]="{'text-green-400': (waterDataService.data.value()?.[0]?.change ?? 0) > 0, 'text-red-400': (waterDataService.data.value()?.[0]?.change ?? 0) < 0}">
+                        {{ waterDataService.data.value()?.[0]?.change ?? 'N/A' }}</p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow">
+                    <h2 class="mb-2">Elevation</h2>
+                    <p class="text-xl font-semibold text-white">{{ waterDataService.data.value()?.[0]?.elevation }}ft
+                    </p>
+                </ion-card>
+                <ion-card class="px-3 py-2 m-0 flex-grow" id="open-water-temp-modal">
+                    <h2 class="mb-2">Estimated Temp</h2>
+                    <ion-icon name="help-circle" size="small" class="fixed bottom-3 right-3"></ion-icon>
+                    <p class="text-xl font-semibold text-white">{{ currentWaterTemperature.avg }}</p>
+                </ion-card>
+            </div>
+
+            <ion-modal trigger="open-water-temp-modal">
+                <ng-template>
+                    <ion-header>
+                        <ion-toolbar>
+                            <ion-buttons>
+                                <ion-button (click)="closeCurrentTempModal()">Close</ion-button>
+                                <ion-title>Estimated Temp</ion-title>
+                            </ion-buttons>
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content>
+                        <div class="p-3">
+                            <div class="p-3 bg-yellow-800 rounded-xl text-sm">
+                                <p>As live water temperature data is not currently available, we provide average
+                                    temperatures based on historical data from the past 10 years.</p>
+                            </div>
+                            <div class="flex flex-col gap-2 mt-4">
+                                @for (item of monthlyTemperatures; track item.month) {
+                                <div class="flex">
+                                    <p
+                                        class="text-sm font-semibold text-center bg-zinc-700 px-2 py-2 rounded-lg mr-1 w-32">
+                                        {{item.month}}</p>
+                                    <div class="bg-zinc-800 rounded-lg flex-grow">
+                                        <div class="flex justify-around p-1 items-center w-full">
+                                            <p
+                                                [ngClass]="{'text-blue-400': item.category === 'cold', 'text-yellow-400': item.category === 'warm', 'text-red-400': item.category === 'hot'}">
+                                                <span
+                                                    class="text-xs font-semibold mr-1 opacity-75">AVG</span>{{item.avg}}
+                                            </p>
+                                            <p><span
+                                                    class="text-xs font-semibold mr-1 opacity-75">MIN</span>{{item.min}}
+                                            </p>
+                                            <p><span
+                                                    class="text-xs font-semibold mr-1 opacity-75">MAX</span>{{item.max}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </ion-content>
+                </ng-template>
+            </ion-modal>
+
+            <div class="flex items-center justify-between mt-4 mb-3">
+                <h1 class="text-xl font-bold">Daily</h1>
+                <p class="text-sm text-zinc-400">Past 14 Days</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                @for (day of waterDataService.data.value(); track day.date) {
+                <div class="flex gap-2">
+                    <ion-card class="px-3 m-0 flex flex-col text-center w-fit font-bold justify-center">
+                        <div class="px-2">
+                            <span class="mb-2 block">{{ day.formattedDate }}</span>
+                            <span
+                                [ngClass]="{'text-green-400': (day.change || 0) > 0, 'text-red-400': (day.change || 0) < 0}">{{day.change}}</span>
+                        </div>
+                    </ion-card>
+
+                    <ion-card class="p-2 m-0 flex-grow flex gap-1">
+
+                        <div class="flex flex-col flex-grow gap-1">
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <span class="block text-xs font-semibold">ELEV</span>
+                                <span class="text-white">{{ day.elevation }}</span>
+                            </div>
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <span class="block text-xs font-semibold">CONT</span>
+                                <span class="text-white">{{ day.content }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col flex-grow gap-1">
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <span class="block text-xs font-semibold">IN</span>
+                                <span class="text-white">{{ day.inflow }}</span>
+                            </div>
+                            <div class="flex items-center p-1 bg-zinc-800 rounded-md gap-2 justify-center flex-grow">
+                                <span class="block text-xs font-semibold">OUT</span>
+                                <span class="text-white">{{ day.outflow }}</span>
+                            </div>
+                        </div>
+
+                    </ion-card>
+                </div>
+                }
+            </div>
+
+
+            <h1 class="text-xl font-bold mt-4 mb-3">Launch Sites</h1>
+            <div class="flex flex-col gap-2">
+                @for (site of launchSites; track site.site) {
+                    <ion-card class="px-3 py-2 m-0 flex text-center w-full font-bold justify-between">
+                        <p class="">{{ site.site }}</p>
+                        <p [ngClass]="{'text-green-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) > 0, 'text-red-400': ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation) < 0}">{{ ((waterDataService.data.value()?.[0]?.elevation || 0 ) - site.minimumSafeElevation).toFixed(1) }}</p>
+                    </ion-card>
+                }
+            </div>
+
+        </div>
+    </ion-content>
+</div>
