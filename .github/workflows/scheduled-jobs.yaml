@@ -29,10 +29,11 @@ jobs:
               --username ${{ secrets.AZURE_CLIENT_ID }} \
               --password ${{ secrets.AZURE_CLIENT_SECRET }} \
               --tenant ${{ secrets.AZURE_TENANT_ID }}
-
+      
             az storage blob upload \
               --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
               --container-name daily-cache \
               --name usbr-${{ steps.date.outputs.date }}.json \
               --file response.json \
-              --overwrite
+              --overwrite \
+              --auth-mode login
